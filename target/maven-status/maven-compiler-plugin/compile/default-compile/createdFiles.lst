@@ -1,3 +1,4 @@
 cypherpass\App.class
 com\cipher\App.class
 com\cipher\Outils\Chiffrement.class
+com\cipher\App.class

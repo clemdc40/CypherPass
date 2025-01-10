@@ -1,27 +1,10 @@
 package com.cipher;
+
 import com.cipher.Outils.Chiffrement;
 
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
-import java.util.Base64;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import com.sun.imageio.stream.StreamCloser;
-
-import sun.util.calendar.CalendarSystem;
-
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args )
-    {
+public class App {
+    public static void main(String[] args) {
+        // Création de l'objet Chiffrement avec chargement d'une clé existante si disponible
         Chiffrement chiffrement = new Chiffrement(true);
 
         // Exemple de texte à chiffrer
@@ -42,5 +25,5 @@ public class App
         } catch (Exception e) {
             System.err.println("Erreur lors de la sauvegarde de la clé : " + e.getMessage());
         }
-}
+    }
 }
