@@ -1,7 +1,9 @@
 package com.cipher.Outils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -164,5 +166,40 @@ public class Chiffrement {
      */
     public SecretKey getSecretKey() {
         return this.secretKey;
+    }
+
+    public void savePassword(String password) {
+        File file = new File("passwd.txt");
+        if (!file.exists() || file.length() == 0) {
+            try (FileWriter writer = new FileWriter(file)) {
+                writer.write(password);
+                System.out.println("Mot de passe sauvegardé avec succès.");
+            } catch (IOException e) {
+                System.err.println("Erreur lors de la sauvegarde du mot de passe : " + e.getMessage());
+            }
+        } else {
+            System.out.println("Le fichier passwd.txt existe déjà et n'est pas vide.");
+        }
+    }
+
+    public Boolean connectPassword(String password){
+        File file = new File("passwd.txt");
+        if (file.exists() && file.length() != 0) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line = reader.readLine();
+                if (line.equals(password)) {
+                    //System.out.println("Mot de passe correct.");
+                    return true;
+                } else {
+                    //System.out.println("Mot de passe incorrect.");
+                    return false;
+                }
+            } catch (IOException e) {
+                System.err.println("Erreur lors de la lecture du mot de passe : " + e.getMessage());
+            }
+        } else {
+            System.out.println("Le fichier passwd.txt n'existe pas ou est vide.");
+        }
+                return null;
     }
 }
