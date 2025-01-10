@@ -1,4 +1,4 @@
-package cypherpass;
+package com.cipher;
 
 /**
  * Hello world!
