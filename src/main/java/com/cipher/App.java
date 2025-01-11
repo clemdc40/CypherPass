@@ -1,55 +1,128 @@
 package com.cipher;
 
+import com.cipher.Outils.Chiffrement;
+import com.cipher.Outils.DatabaseManager;
+
+import java.io.File;
 import java.util.Scanner;
 
-import com.cipher.Outils.Chiffrement;
-
 public class App {
+
+    private static final String MASTERPWD_FILE = "keystore/masterpwd.txt";
+
     public static void main(String[] args) {
-        Chiffrement chiffrement = new Chiffrement(true);
-
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Entrez votre mot de passe : ");
-        String texteClair = scanner.nextLine();
 
-        String texteChiffre = chiffrement.chiffrer(texteClair);
-        System.out.println("Texte chiffré : " + texteChiffre);
+        // Vérifie si le mot de passe maître existe
+        File masterFile = new File(MASTERPWD_FILE);
+        if (!masterFile.exists() || masterFile.length() == 0) {
+            // Définir un nouveau mot de passe maître
+            System.out.print("Définissez votre mot de passe maître : ");
+            String masterPassword = scanner.nextLine();
 
-        String texteDechiffre = chiffrement.dechiffrer(texteChiffre);
-        System.out.println("Texte déchiffré : " + texteDechiffre);
+            saveMasterPasswordHash(masterPassword);
 
-        try {
-            chiffrement.saveKey(null);
-            System.out.println("Clé secrète sauvegardée avec succès.");
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la sauvegarde de la clé : " + e.getMessage());
+            System.out.println("🔐 Mot de passe maître sauvegardé avec succès !");
         }
 
-        try {
-            chiffrement.savePassword(texteChiffre);
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la sauvegarde du mot de passe : " + e.getMessage());
-        }        
+        // Authentification avec le mot de passe maître
+        boolean authenticated = false;
+        String masterPassword = null;
 
-        Boolean passwordMatch = false;
-        while (!passwordMatch) {
-            System.out.print("Entrez votre mot de passe pour vérifier : ");
-            String inputPassword = scanner.nextLine();
-            String encryptedInputPassword = chiffrement.chiffrer(inputPassword);
+        while (!authenticated) {
+            System.out.print("Entrez votre mot de passe maître : ");
+            masterPassword = scanner.nextLine();
 
-            try {
-            passwordMatch = chiffrement.connectPassword(encryptedInputPassword);
-            if (passwordMatch) {
-                System.out.println("Mot de passe correct.");
+            if (verifyMasterPasswordHash(masterPassword)) {
+                System.out.println("✅ Authentification réussie !");
+                authenticated = true;
             } else {
-                System.out.println("Mot de passe incorrect. Veuillez réessayer.");
-            }
-            } catch (Exception e) {
-            System.err.println("Erreur lors de la vérification du mot de passe : " + e.getMessage());
+                System.out.println("❌ Mot de passe maître incorrect. Veuillez réessayer.");
             }
         }
 
+        // Initialisation des gestionnaires
+        Chiffrement chiffrement = new Chiffrement(masterPassword);
+        DatabaseManager dbManager = new DatabaseManager(chiffrement);
+
+        // Menu des options
+        boolean running = true;
+        while (running) {
+            System.out.println("\n📋 Menu :");
+            System.out.println("1️⃣ - Ajouter un mot de passe");
+            System.out.println("2️⃣ - Lister tous les mots de passe");
+            System.out.println("3️⃣ - Quitter");
+            System.out.print("Choisissez une option : ");
+
+            String choice = scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    System.out.print("🔑 Site : ");
+                    String site = scanner.nextLine();
+                    System.out.print("👤 Nom d'utilisateur : ");
+                    String username = scanner.nextLine();
+                    System.out.print("🔒 Mot de passe : ");
+                    String password = scanner.nextLine();
+
+                    dbManager.addPassword(site, username, password);
+                    System.out.println("✅ Mot de passe sauvegardé !");
+                    break;
+
+                case "2":
+                    System.out.println("\n📂 Liste des mots de passe enregistrés :");
+                    dbManager.retrievePasswords();
+                    break;
+
+                case "3":
+                    running = false;
+                    System.out.println("👋 Au revoir !");
+                    break;
+
+                default:
+                    System.out.println("❗ Choix invalide. Veuillez réessayer.");
+            }
+        }
 
         scanner.close();
+    }
+
+    /**
+     * Stocke le hash du mot de passe maître.
+     */
+    private static void saveMasterPasswordHash(String masterPassword) {
+        try {
+            byte[] hash = java.security.MessageDigest.getInstance("SHA-256").digest(masterPassword.getBytes());
+            java.nio.file.Files.createDirectories(java.nio.file.Paths.get("keystore"));
+            try (java.io.FileOutputStream fos = new java.io.FileOutputStream(MASTERPWD_FILE)) {
+                fos.write(hash);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la sauvegarde du mot de passe maître : " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Vérifie que le hash du mot de passe maître est correct.
+     */
+    private static boolean verifyMasterPasswordHash(String inputPassword) {
+        try {
+            File file = new File(MASTERPWD_FILE);
+            if (!file.exists() || file.length() == 0) {
+                System.err.println("❌ Aucun mot de passe maître sauvegardé !");
+                return false;
+            }
+            byte[] storedHash = java.nio.file.Files.readAllBytes(file.toPath());
+            byte[] inputHash = java.security.MessageDigest.getInstance("SHA-256").digest(inputPassword.getBytes());
+
+            // Comparaison des hash
+            if (storedHash.length != inputHash.length) return false;
+            for (int i = 0; i < storedHash.length; i++) {
+                if (storedHash[i] != inputHash[i]) return false;
+            }
+            return true;
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la vérification du mot de passe maître : " + e.getMessage(), e);
+        }
     }
 }
