@@ -12,6 +12,8 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Chiffrement {
 
@@ -21,6 +23,7 @@ public class Chiffrement {
     private static final String PASSWORD_FILE = "keystore/passwd.txt";
     private static final int KEY_SIZE = 256;
     private static final int ITERATIONS = 100_000;
+    private static final Logger logger = Logger.getLogger(Chiffrement.class.getName());
 
     private byte[] derivedKey;
 
@@ -41,7 +44,8 @@ public class Chiffrement {
             // Dériver la clé AES avec PBKDF2
             this.derivedKey = deriveKey(compositeKey, salt);
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de l'initialisation du chiffrement", e);
+            logger.log(Level.SEVERE, "Erreur lors de l'initialisation du chiffrement", e);
+            throw new RuntimeException("Erreur lors de l'initialisation du chiffrement : " + e.getMessage(), e);
         }
     }
 
@@ -128,7 +132,8 @@ public class Chiffrement {
 
             return Base64.getEncoder().encodeToString(ivAndEncrypted);
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors du chiffrement", e);
+            logger.log(Level.SEVERE, "Erreur lors du chiffrement", e);
+            throw new RuntimeException("Erreur lors du chiffrement : " + e.getMessage(), e);
         }
     }
 
@@ -151,7 +156,8 @@ public class Chiffrement {
             byte[] decrypted = cipher.doFinal(encryptedBytes);
             return new String(decrypted, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors du déchiffrement", e);
+            logger.log(Level.SEVERE, "Erreur lors du déchiffrement", e);
+            throw new RuntimeException("Erreur lors du déchiffrement : " + e.getMessage(), e);
         }
     }
 
@@ -167,7 +173,8 @@ public class Chiffrement {
                 writer.write(encryptedPassword);
             }
         } catch (Exception e) {
-            throw new RuntimeException("❌ Erreur lors de la sauvegarde du mot de passe : " + e.getMessage());
+            logger.log(Level.SEVERE, "Erreur lors de la sauvegarde du mot de passe", e);
+            throw new RuntimeException("Erreur lors de la sauvegarde du mot de passe : " + e.getMessage(), e);
         }
     }
 
@@ -177,7 +184,7 @@ public class Chiffrement {
     public String loadSavedPassword() {
         File file = new File(PASSWORD_FILE);
         if (!file.exists() || file.length() == 0) {
-            System.out.println("Aucun mot de passe sauvegardé.");
+            logger.info("Aucun mot de passe sauvegardé.");
             return "";
         }
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -187,7 +194,8 @@ public class Chiffrement {
             }
             return dechiffrer(encryptedPassword);
         } catch (IOException e) {
-            throw new RuntimeException("❌ Erreur lors de la lecture du mot de passe sauvegardé : " + e.getMessage());
+            logger.log(Level.SEVERE, "Erreur lors de la lecture du mot de passe sauvegardé", e);
+            throw new RuntimeException("Erreur lors de la lecture du mot de passe sauvegardé : " + e.getMessage(), e);
         }
     }
 }
