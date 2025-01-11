@@ -2,6 +2,12 @@ package com.cipher;
 
 import com.cipher.Outils.Chiffrement;
 import com.cipher.Outils.DatabaseManager;
+import com.cipher.Outils.PasswordGenerator;
+
+import java.io.File;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.io.File;
 import java.util.Scanner;
@@ -9,6 +15,7 @@ import java.util.Scanner;
 public class App {
 
     private static final String MASTERPWD_FILE = "keystore/masterpwd.txt";
+    private static final Logger logger = Logger.getLogger(App.class.getName());
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -62,8 +69,29 @@ public class App {
                     String site = scanner.nextLine();
                     System.out.print("👤 Nom d'utilisateur : ");
                     String username = scanner.nextLine();
-                    System.out.print("🔒 Mot de passe : ");
-                    String password = scanner.nextLine();
+
+                    System.out.print("Voulez-vous générer un mot de passe ? (oui/non) : ");
+                    String generatePasswordChoice = scanner.nextLine();
+                    String password;
+
+                    if (generatePasswordChoice.equalsIgnoreCase("oui")) {
+                        System.out.print("Longueur du mot de passe : ");
+                        int length = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Inclure des minuscules ? (oui/non) : ");
+                        boolean useLowercase = scanner.nextLine().equalsIgnoreCase("oui");
+                        System.out.print("Inclure des majuscules ? (oui/non) : ");
+                        boolean useUppercase = scanner.nextLine().equalsIgnoreCase("oui");
+                        System.out.print("Inclure des chiffres ? (oui/non) : ");
+                        boolean useDigits = scanner.nextLine().equalsIgnoreCase("oui");
+                        System.out.print("Inclure des symboles ? (oui/non) : ");
+                        boolean useSymbols = scanner.nextLine().equalsIgnoreCase("oui");
+
+                        password = PasswordGenerator.generatePassword(length, useLowercase, useUppercase, useDigits, useSymbols);
+                        System.out.println("🔒 Mot de passe généré : " + password);
+                    } else {
+                        System.out.print("🔒 Mot de passe : ");
+                        password = scanner.nextLine();
+                    }
 
                     dbManager.addPassword(site, username, password);
                     System.out.println("✅ Mot de passe sauvegardé !");
@@ -98,6 +126,7 @@ public class App {
                 fos.write(hash);
             }
         } catch (Exception e) {
+            logger.log(Level.SEVERE, "Erreur lors de la sauvegarde du mot de passe maître", e);
             throw new RuntimeException("Erreur lors de la sauvegarde du mot de passe maître : " + e.getMessage(), e);
         }
     }
@@ -109,19 +138,18 @@ public class App {
         try {
             File file = new File(MASTERPWD_FILE);
             if (!file.exists() || file.length() == 0) {
-                System.err.println("❌ Aucun mot de passe maître sauvegardé !");
+                logger.severe("❌ Aucun mot de passe maître sauvegardé !");
                 return false;
             }
             byte[] storedHash = java.nio.file.Files.readAllBytes(file.toPath());
             byte[] inputHash = java.security.MessageDigest.getInstance("SHA-256").digest(inputPassword.getBytes());
 
-            // Comparaison des hash
-            if (storedHash.length != inputHash.length) return false;
             for (int i = 0; i < storedHash.length; i++) {
                 if (storedHash[i] != inputHash[i]) return false;
             }
             return true;
         } catch (Exception e) {
+            logger.log(Level.SEVERE, "Erreur lors de la vérification du mot de passe maître", e);
             throw new RuntimeException("Erreur lors de la vérification du mot de passe maître : " + e.getMessage(), e);
         }
     }

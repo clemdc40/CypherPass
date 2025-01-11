@@ -1,3 +1,5 @@
+com\cipher\Outils\PasswordGenerator.class
 com\cipher\App.class
+com\cipher\Outils\DatabaseManager.class
 com\cipher\Outils\Chiffrement.class
 com\cipher\Outils\DatabaseManager.class
