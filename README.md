@@ -66,11 +66,83 @@ Les contributions sont les bienvenues ! Si vous souhaitez ajouter des fonctionna
 ## Licence
 Ce projet est sous licence [MIT](LICENSE). Vous êtes libre de l'utiliser, de le modifier et de le distribuer tant que la licence d'origine est incluse.
 
-## Améliorations Futures
-- Intégration avec un service cloud pour la synchronisation des mots de passe.
-- Version mobile pour Android/iOS.
-- Support pour le remplissage automatique des champs dans les navigateurs.
-- Authentification biométrique.
+# 🔑 Guide d'utilisation de l'application CipherPass
 
+## 👤 **Présentation de CipherPass**
+CipherPass est une application de gestion de mots de passe sécurisée qui permet de stocker et de chiffrer vos identifiants de connexion. Les mots de passe sont chiffrés avec AES-256 et protégés par un mot de passe maître.
+
+---
+
+## 📊 **Structure des fichiers**
+
+```
+/keystore/
+├── masterpwd.txt    (Hash du mot de passe maître)
+├── keeper.key       (Fichier clé pour la Composite Key)
+├── salt.dat         (Salt pour la dérivation de clé)
+├── passwd.txt       (Mot de passe chiffré temporaire)
+└── database.db      (Base de données chiffrée des mots de passe)
+```
+
+---
+
+## 🔑 **Première utilisation**
+
+1. **Démarrer l'application** :
+   ```bash
+   mvn exec:java
+   ```
+2. **Définir le mot de passe maître** :
+   - Saisissez un mot de passe maître qui servira à protéger tous vos mots de passe.
+   
+3. **Sauvegarder un mot de passe** :
+   - L'application vous demande ensuite d'entrer un mot de passe à sauvegarder.
+   - Ce mot de passe sera chiffré et stocké en toute sécurité.
+
+---
+
+## 🛠️ **Utilisation régulière**
+
+1. **Connexion** :
+   - Entrez votre mot de passe maître pour accéder à vos données.
+
+2. **Menu interactif** :
+   - **1** : Ajouter un nouveau mot de passe.
+   - **2** : Lister tous les mots de passe sauvegardés.
+   - **3** : Quitter l'application.
+
+---
+
+## 🔐 **Fonctionnalités**
+
+### ➕ **Ajouter un mot de passe**
+- Saisissez les informations suivantes :
+  - **Site web**
+  - **Nom d'utilisateur**
+  - **Mot de passe**
+- Le mot de passe sera chiffré et stocké dans la base de données.
+
+### 📃 **Lister les mots de passe**
+- Tous les mots de passe enregistrés seront affichés déchiffrés sous cette forme :
+  
+  ```
+  🌐 Site : github.com | 👤 Utilisateur : clement | 🔑 Mot de passe : MotDePasse123
+  🌐 Site : gmail.com  | 👤 Utilisateur : clem@gmail.com | 🔑 Mot de passe : MonSuperMdp
+  ```
+
+### ⏹️ **Quitter l'application**
+- Entrez **3** pour fermer l'application.
+
+---
+
+## ⚠️ **Recommandations de sécurité**
+
+1. **Mot de passe maître** : Utilisez un mot de passe complexe et unique.
+2. **Sauvegarde des données** : Faites régulièrement des sauvegardes de votre dossier `keystore`.
+3. **Fichier `.gitignore`** : Ajoutez `/keystore/` pour éviter de versionner vos données sensibles.
+4. **Protection des fichiers** : Protégez le dossier `keystore` avec des permissions restrictives :
+   ```bash
+   chmod 700 keystore/
+   ```
 ---
 Merci d'avoir utilisé le Gestionnaire de Mots de Passe en Java ! 🚀
