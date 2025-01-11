@@ -70,6 +70,7 @@ public class App {
                     System.out.print("Voulez-vous générer un mot de passe ? (oui/non) : ");
                     String generatePasswordChoice = scanner.nextLine();
                     String password;
+
                     if (generatePasswordChoice.equalsIgnoreCase("oui")) {
                         System.out.print("Longueur du mot de passe : ");
                         int length = Integer.parseInt(scanner.nextLine());
@@ -140,8 +141,6 @@ public class App {
             byte[] storedHash = java.nio.file.Files.readAllBytes(file.toPath());
             byte[] inputHash = java.security.MessageDigest.getInstance("SHA-256").digest(inputPassword.getBytes());
 
-            // Comparaison des hash
-            if (storedHash.length != inputHash.length) return false;
             for (int i = 0; i < storedHash.length; i++) {
                 if (storedHash[i] != inputHash[i]) return false;
             }

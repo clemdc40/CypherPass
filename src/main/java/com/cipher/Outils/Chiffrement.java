@@ -38,16 +38,9 @@ public class Chiffrement {
      */
     public Chiffrement(String masterPassword) {
         try {
-            // Charger ou générer le salt
             byte[] salt = loadOrGenerateSalt();
-
-            // Charger ou générer le fichier clé
             byte[] keyFileData = loadOrGenerateKeyFile();
-
-            // Générer la Composite Key (Mot de passe maître + Fichier clé)
             byte[] compositeKey = generateCompositeKey(masterPassword, keyFileData);
-
-            // Dériver la clé AES avec PBKDF2
             this.derivedKey = deriveKey(compositeKey, salt);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Erreur lors de l'initialisation du chiffrement", e);
@@ -67,8 +60,10 @@ public class Chiffrement {
             try (FileOutputStream fos = new FileOutputStream(saltFile)) {
                 fos.write(salt);
             }
+            logger.info("Salt généré et sauvegardé.");
             return salt;
         }
+        logger.info("Salt chargé depuis le fichier.");
         return Files.readAllBytes(Paths.get(SALT_FILE));
     }
 
@@ -84,8 +79,10 @@ public class Chiffrement {
             try (FileOutputStream fos = new FileOutputStream(keyFile)) {
                 fos.write(keyFileData);
             }
+            logger.info("Fichier clé généré et sauvegardé.");
             return keyFileData;
         }
+        logger.info("Fichier clé chargé depuis le disque.");
         return Files.readAllBytes(Paths.get(DEFAULT_KEY_FILE));
     }
 
@@ -100,6 +97,7 @@ public class Chiffrement {
         System.arraycopy(passwordHash, 0, compositeKey, 0, passwordHash.length);
         System.arraycopy(keyFileData, 0, compositeKey, passwordHash.length, keyFileData.length);
 
+        logger.info("Composite Key générée.");
         return sha256.digest(compositeKey);
     }
 
@@ -114,6 +112,7 @@ public class Chiffrement {
                 KEY_SIZE
         );
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        logger.info("Clé AES dérivée avec succès.");
         return factory.generateSecret(spec).getEncoded();
     }
 
@@ -131,7 +130,6 @@ public class Chiffrement {
             cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
             byte[] encrypted = cipher.doFinal(texte.getBytes(StandardCharsets.UTF_8));
 
-            // Combinaison IV + données chiffrées
             byte[] ivAndEncrypted = new byte[iv.length + encrypted.length];
             System.arraycopy(iv, 0, ivAndEncrypted, 0, iv.length);
             System.arraycopy(encrypted, 0, ivAndEncrypted, iv.length, encrypted.length);
@@ -168,7 +166,7 @@ public class Chiffrement {
     }
 
     /**
-     * Sauvegarde un mot de passe (ou n'importe quel texte) de manière chiffrée.
+     * Sauvegarde un mot de passe de manière chiffrée.
      */
     public void savePassword(String password) {
         try {
@@ -178,6 +176,7 @@ public class Chiffrement {
             try (FileWriter writer = new FileWriter(file)) {
                 writer.write(encryptedPassword);
             }
+            logger.info("Mot de passe sauvegardé avec succès.");
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Erreur lors de la sauvegarde du mot de passe", e);
             throw new RuntimeException("Erreur lors de la sauvegarde du mot de passe : " + e.getMessage(), e);
@@ -185,7 +184,7 @@ public class Chiffrement {
     }
 
     /**
-     * Charge et déchiffre le mot de passe stocké dans passwd.txt (ou renvoie une string vide s’il n’y en a pas).
+     * Charge et déchiffre le mot de passe stocké dans passwd.txt.
      */
     public String loadSavedPassword() {
         File file = new File(PASSWORD_FILE);
