@@ -13,9 +13,10 @@ public class DatabaseManager {
     public DatabaseManager(Chiffrement chiffrement) {
         this.chiffrement = chiffrement;
         createTable();
-        }
+    }
+    
 
-        private void createTable() {
+    private void createTable() {
         String sql = "CREATE TABLE IF NOT EXISTS passwords ("
                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                + "site TEXT,"
@@ -30,22 +31,22 @@ public class DatabaseManager {
         }
     }
 
-    public void addPassword(String site, String username, String password) {
+    public void addPassword(String site, String username, String encryptedPassword) {
         String sql = "INSERT INTO passwords (site, username, password) VALUES (?, ?, ?)";
-
+    
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            String encryptedPassword = chiffrement.chiffrer(password);
-
+    
             stmt.setString(1, site);
             stmt.setString(2, username);
             stmt.setString(3, encryptedPassword);
             stmt.executeUpdate();
+    
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de l'ajout du mot de passe : " + e.getMessage());
         }
     }
+    
 
     public void retrievePasswords() {
         String sql = "SELECT site, username, password FROM passwords";
@@ -65,4 +66,60 @@ public class DatabaseManager {
             throw new RuntimeException("Erreur lors de la récupération des mots de passe : " + e.getMessage());
         }
     }
+
+    public ResultSet getSiteAndUsername() {
+        String sql = "SELECT site, username FROM passwords";
+        try {
+            Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            return stmt.executeQuery();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la récupération des sites et noms d'utilisateur : " + e.getMessage());
+        }
+    }
+
+    public void deleteSite(String site) {
+        String sql = "DELETE FROM passwords WHERE site = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, site);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la suppression du site : " + e.getMessage());
+        }
+    }
+
+    public String getDecryptedPasswordBySite(String site) {
+        String sql = "SELECT password FROM passwords WHERE site = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, site);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                String encryptedPassword = rs.getString("password");
+                return chiffrement.dechiffrer(encryptedPassword);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la récupération du mot de passe : " + e.getMessage());
+        }
+        return null;
+    }
+
+    public Chiffrement getChiffrement() {
+        return chiffrement;
+    }
+
+    public ResultSet getPasswordBySite(String site) {
+        String sql = "SELECT password FROM passwords WHERE site = ?";
+        try {
+            Connection conn = DriverManager.getConnection(DB_URL);
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, site);
+            return stmt.executeQuery();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la récupération du mot de passe : " + e.getMessage());
+        }
+    }
+    
+
 }
