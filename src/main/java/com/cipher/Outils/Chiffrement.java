@@ -1,12 +1,8 @@
 package com.cipher.Outils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -14,95 +10,113 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.nio.charset.StandardCharsets;
+import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
-import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.Cipher;
 
 public class Chiffrement {
 
     private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
     private static final String DEFAULT_KEY_FILE = "keystore/keeper.key";
     private static final String SALT_FILE = "keystore/salt.dat";
-    private static final String PASSWORD_FILE = "keystore/passwd.txt";
     private static final int KEY_SIZE = 256;
     private static final int ITERATIONS = 100_000;
     private static final Logger logger = Logger.getLogger(Chiffrement.class.getName());
+    private static final String PASSWORD_FILE = "keystore/passwd.txt";
 
     private byte[] derivedKey;
 
     /**
-     * Constructeur : on dérive la clé à partir du (vrai) mot de passe maître.
+     * Constructeur : on dérive la clé à partir du mot de passe maître.
      */
     public Chiffrement(String masterPassword) {
         try {
+            ensureKeystoreDirectoryExists();  // ✅ Vérifier que le dossier existe
             byte[] salt = loadOrGenerateSalt();
             byte[] keyFileData = loadOrGenerateKeyFile();
             byte[] compositeKey = generateCompositeKey(masterPassword, keyFileData);
             this.derivedKey = deriveKey(compositeKey, salt);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erreur lors de l'initialisation du chiffrement", e);
-            throw new RuntimeException("Erreur lors de l'initialisation du chiffrement : " + e.getMessage(), e);
+            logger.log(Level.SEVERE, "❌ Erreur lors de l'initialisation du chiffrement", e);
+            throw new RuntimeException("❌ Erreur lors de l'initialisation du chiffrement : " + e.getMessage(), e);
         }
     }
 
     /**
-     * Génère ou charge le salt.
+     * ✅ Crée le dossier `keystore` s'il n'existe pas.
+     */
+    private void ensureKeystoreDirectoryExists() throws IOException {
+        File keystoreDir = new File("keystore");
+        if (!keystoreDir.exists()) {
+            if (keystoreDir.mkdirs()) {
+                logger.info("📁 Dossier 'keystore' créé.");
+            } else {
+                throw new IOException("❌ Impossible de créer le dossier 'keystore'.");
+            }
+        }
+    }
+
+    /**
+     * ✅ Génère ou charge le salt.
      */
     private byte[] loadOrGenerateSalt() throws IOException {
         File saltFile = new File(SALT_FILE);
         if (!saltFile.exists()) {
             byte[] salt = new byte[16];
             new SecureRandom().nextBytes(salt);
-            Files.createDirectories(Paths.get("keystore"));
             try (FileOutputStream fos = new FileOutputStream(saltFile)) {
                 fos.write(salt);
             }
-            logger.info("Salt généré et sauvegardé.");
+            logger.info("🔑 Salt généré et sauvegardé.");
             return salt;
         }
-        logger.info("Salt chargé depuis le fichier.");
+        logger.info("📥 Salt chargé depuis le fichier.");
         return Files.readAllBytes(Paths.get(SALT_FILE));
     }
 
     /**
-     * Génère ou charge le fichier clé.
+     * ✅ Génère ou charge le fichier clé.
      */
     private byte[] loadOrGenerateKeyFile() throws IOException {
         File keyFile = new File(DEFAULT_KEY_FILE);
         if (!keyFile.exists()) {
             byte[] keyFileData = new byte[64];
             new SecureRandom().nextBytes(keyFileData);
-            Files.createDirectories(Paths.get("keystore"));
             try (FileOutputStream fos = new FileOutputStream(keyFile)) {
                 fos.write(keyFileData);
             }
-            logger.info("Fichier clé généré et sauvegardé.");
+            logger.info("🔐 Fichier clé généré et sauvegardé.");
             return keyFileData;
         }
-        logger.info("Fichier clé chargé depuis le disque.");
+        logger.info("📥 Fichier clé chargé depuis le disque.");
         return Files.readAllBytes(Paths.get(DEFAULT_KEY_FILE));
     }
 
     /**
-     * Génère la Composite Key (Mot de passe maître + Fichier clé).
+     * ✅ Génère la Composite Key (Mot de passe maître + Fichier clé).
      */
     private byte[] generateCompositeKey(String password, byte[] keyFileData) throws Exception {
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-        byte[] passwordHash = sha256.digest(password.getBytes(StandardCharsets.UTF_8));
+        byte[] passwordHash = sha256.digest(password.getBytes());
         byte[] compositeKey = new byte[passwordHash.length + keyFileData.length];
 
         System.arraycopy(passwordHash, 0, compositeKey, 0, passwordHash.length);
         System.arraycopy(keyFileData, 0, compositeKey, passwordHash.length, keyFileData.length);
 
-        logger.info("Composite Key générée.");
+        logger.info("🔗 Composite Key générée.");
         return sha256.digest(compositeKey);
     }
 
     /**
-     * Dérive la clé AES avec PBKDF2.
+     * ✅ Dérive la clé AES avec PBKDF2.
      */
     private byte[] deriveKey(byte[] compositeKey, byte[] salt) throws Exception {
         PBEKeySpec spec = new PBEKeySpec(
@@ -112,12 +126,11 @@ public class Chiffrement {
                 KEY_SIZE
         );
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        logger.info("Clé AES dérivée avec succès.");
+        logger.info("🔑 Clé AES dérivée avec succès.");
         return factory.generateSecret(spec).getEncoded();
     }
-
     /**
-     * Chiffre un texte en utilisant la clé dérivée.
+     * Chiffre un texte.
      */
     public String chiffrer(String texte) {
         try {
@@ -136,13 +149,12 @@ public class Chiffrement {
 
             return Base64.getEncoder().encodeToString(ivAndEncrypted);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erreur lors du chiffrement", e);
-            throw new RuntimeException("Erreur lors du chiffrement : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur lors du chiffrement", e);
         }
     }
 
     /**
-     * Déchiffre un texte chiffré.
+     * Déchiffre un texte.
      */
     public String dechiffrer(String texteChiffre) {
         try {
@@ -160,8 +172,7 @@ public class Chiffrement {
             byte[] decrypted = cipher.doFinal(encryptedBytes);
             return new String(decrypted, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erreur lors du déchiffrement", e);
-            throw new RuntimeException("Erreur lors du déchiffrement : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur lors du déchiffrement", e);
         }
     }
 
@@ -176,31 +187,27 @@ public class Chiffrement {
             try (FileWriter writer = new FileWriter(file)) {
                 writer.write(encryptedPassword);
             }
-            logger.info("Mot de passe sauvegardé avec succès.");
+            logger.info("✅ Mot de passe sauvegardé.");
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Erreur lors de la sauvegarde du mot de passe", e);
-            throw new RuntimeException("Erreur lors de la sauvegarde du mot de passe : " + e.getMessage(), e);
+            logger.log(Level.SEVERE, "❌ Erreur lors de la sauvegarde du mot de passe", e);
+            throw new RuntimeException("Erreur lors de la sauvegarde du mot de passe", e);
         }
     }
 
     /**
-     * Charge et déchiffre le mot de passe stocké dans passwd.txt.
+     * Charge et déchiffre le mot de passe stocké.
      */
     public String loadSavedPassword() {
         File file = new File(PASSWORD_FILE);
         if (!file.exists() || file.length() == 0) {
-            logger.info("Aucun mot de passe sauvegardé.");
+            logger.warning("⚠️ Aucun mot de passe sauvegardé.");
             return "";
         }
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String encryptedPassword = reader.readLine();
-            if (encryptedPassword == null || encryptedPassword.isEmpty()) {
-                return "";
-            }
-            return dechiffrer(encryptedPassword);
+            return (encryptedPassword != null && !encryptedPassword.isEmpty()) ? dechiffrer(encryptedPassword) : "";
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Erreur lors de la lecture du mot de passe sauvegardé", e);
-            throw new RuntimeException("Erreur lors de la lecture du mot de passe sauvegardé : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur lors de la lecture du mot de passe", e);
         }
     }
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Button?>
+
+<VBox alignment="CENTER" spacing="10.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.cipher.controllers.LoginController" style="-fx-background-color: #f7f7f7;">
+    
+    <Label text="🔒 SecurePass" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    
+    <Label text="Mot de passe" />
+    <PasswordField fx:id="passwordField" promptText="Enter your password" maxWidth="200"/>
+    
+    <Button text="Se connecter" onAction="#handleLoginButtonAction" style="-fx-background-color: #000000; -fx-text-fill: white;"/>
+    
+    <Label fx:id="errorLabel" textFill="red"/>
+</VBox>
