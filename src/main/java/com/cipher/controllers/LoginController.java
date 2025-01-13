@@ -141,7 +141,6 @@ public class LoginController {
         }
     }
 
-
     @FXML
     private void handleLoginButtonAction() {
         String masterPassword = passwordField.getText();
