@@ -150,7 +150,6 @@ public class LoginController {
         }
     }
 
-
     @FXML
     private void handleLoginButtonAction() {
         String masterPassword = passwordField.getText();
@@ -184,6 +183,4 @@ public class LoginController {
             errorLabel.setText("❌ Impossible de charger le Dashboard.");
         }
     }
-    
-
 }
