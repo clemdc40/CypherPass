@@ -20,6 +20,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 public class LoginController {
@@ -30,11 +32,18 @@ public class LoginController {
     @FXML
     private Label errorLabel;
 
+    @FXML
+    private ImageView logoImageView;
+
     private static final String MASTERPWD_FILE = "keystore/passwd.txt";
 
     @FXML
     private void initialize() {
         checkAndCreateMasterPassword();
+    
+        // 📥 Chargement du logo
+        Image logo = new Image(getClass().getResource("/com/cipher/images/logo.png").toExternalForm());
+        logoImageView.setImage(logo);
     }
 
     /**
