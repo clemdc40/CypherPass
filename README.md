@@ -65,7 +65,7 @@ mvn test
 
 ### Couverture des tests
 - ✅ **Unitaires** : chiffrement/déchiffrement, gestion de base de données
-- 🔄 **Intégration** : flux complet (Authentification → Ajout → Suppression)
+- ✅ **Intégration** : flux complet (Authentification → Ajout → Suppression)
 
 ---
 
