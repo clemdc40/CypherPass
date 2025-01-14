@@ -1,6 +1,6 @@
 # 📂 CipherPass - Password Manager
 
-![CipherPass](https://img.shields.io/badge/version-1.0-blue.svg) ![Java](https://img.shields.io/badge/Java-17+-green.svg) ![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
+![CipherPass](https://img.shields.io/badge/version-1.0-blue.svg) ![Java](https://img.shields.io/badge/Java-17+-green.svg)
 
 ## 🚀 Présentation
 
@@ -93,7 +93,7 @@ _Étudiant en 3e année de Licence NEC à l'Université de Pau et des Pays de l'
 
 ## 📄 Licence
 
-Ce projet est sous licence **MIT**.
+Ce projet est sous licence **Apache License 2.0**.
 
 ---
 
