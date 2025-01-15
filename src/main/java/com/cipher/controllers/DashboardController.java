@@ -39,6 +39,10 @@ public class DashboardController {
         this.chiffrement = chiffrement;
         this.databaseManager = new DatabaseManager(chiffrement);
         loadPasswordsFromDatabase();  // ⚠️ Charger les données immédiatement
+        /**
+         * Modifie un mot de passe.
+         */
+        
     }
     
 
@@ -126,8 +130,12 @@ public class DashboardController {
         Button deleteButton = new Button("🗑️ Supprimer");
         deleteButton.setStyle("-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-background-radius: 10;");
         deleteButton.setOnAction(e -> handleDeletePassword(site, card));
+
+        Button editButton = new Button("🖊️ Modifier");
+        editButton.setStyle("-fx-background-color: #333333; -fx-text-fill: white; -fx-background-radius: 10;");
+        editButton.setOnAction(e -> handleEditPassword(site, card));
     
-        HBox buttonBox = new HBox(10, copyButton, deleteButton);
+        HBox buttonBox = new HBox(10, copyButton, editButton, deleteButton);
         card.getChildren().addAll(serviceLabel, userLabel, buttonBox);
     
         passwordContainer.getChildren().add(card);
@@ -225,6 +233,27 @@ public class DashboardController {
             System.out.println("📂 Passage à la page d'ajout de mot de passe.");
         } catch (IOException e) {
             System.err.println("❌ Erreur lors de la redirection vers la page d'ajout : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void handleEditPassword(String site, VBox card) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cipher/views/edit_password.fxml"));
+            Parent editPasswordPage = loader.load();
+    
+            // ✅ Transfert de l'instance Chiffrement et du site
+            EditPasswordController editPasswordController = loader.getController();
+            editPasswordController.setChiffrement(chiffrement);
+            editPasswordController.setSite(site);
+    
+            Stage stage = (Stage) passwordContainer.getScene().getWindow();
+            stage.setScene(new Scene(editPasswordPage));
+            stage.show();
+    
+            System.out.println("📂 Passage à la page de modification de mot de passe pour le site : " + site);
+        } catch (IOException e) {
+            System.err.println("❌ Erreur lors de la redirection vers la page de modification : " + e.getMessage());
             e.printStackTrace();
         }
     }

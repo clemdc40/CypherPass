@@ -97,9 +97,13 @@ public class AddPasswordController {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        if (site.isEmpty() || username.isEmpty() || password.isEmpty()) {
+        if (site.isEmpty() || password.isEmpty()) {
             System.out.println("⚠️ Tous les champs doivent être remplis !");
             return;
+        }
+
+        if(username.isEmpty()) {
+            username = "Pas de nom";
         }
 
         // Encrypt the password

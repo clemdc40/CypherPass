@@ -1,7 +1,8 @@
+com\cipher\controllers\EditPasswordController.class
+com\cipher\controllers\LoginController.class
+com\cipher\App.class
+com\cipher\Outils\Chiffrement.class
 com\cipher\Outils\PasswordGenerator.class
 com\cipher\controllers\DashboardController.class
 com\cipher\controllers\AddPasswordController.class
-com\cipher\controllers\LoginController.class
-com\cipher\App.class
 com\cipher\Outils\DatabaseManager.class
-com\cipher\Outils\Chiffrement.class
