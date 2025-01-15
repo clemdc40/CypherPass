@@ -86,7 +86,7 @@ mvn test
 
 ## 👤 Auteur
 
-**Clément Da Cruz**  
+**Clément**  
 _Étudiant en 3e année de Licence NEC à l'Université de Pau et des Pays de l'Adour_
 
 ---
