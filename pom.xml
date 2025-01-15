@@ -22,11 +22,17 @@
 
   <dependencies>
     <!-- JUnit for testing -->
+        <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>5.9.1</version>
+        <scope>test</scope>
+    </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.2</version>
-      <scope>test</scope>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>5.9.1</version>
+        <scope>test</scope>
     </dependency>
 
     <!-- SQLite JDBC Driver -->
@@ -75,47 +81,66 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <!-- Compiler Plugin -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
+ <build>
+  <plugins>
+    <!-- Maven Shade Plugin -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-shade-plugin</artifactId>
+      <version>3.2.1</version>
+      <executions>
+        <execution>
+          <phase>package</phase> <!-- Ce plugin s'exécute pendant la phase 'package' -->
+          <goals>
+            <goal>shade</goal> <!-- La commande qui crée le shaded JAR -->
+          </goals>
+          <configuration>
+            <finalName>cipherpass-shaded</finalName> <!-- Nom du fichier JAR généré -->
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
 
-      <!-- JavaFX Maven Plugin -->
-      <plugin>
-        <groupId>org.openjfx</groupId>
-        <artifactId>javafx-maven-plugin</artifactId>
-        <version>0.0.8</version>
-        <configuration>
-          <mainClass>com.cipher.App</mainClass>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+    <!-- Vos autres plugins ici -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.8.1</version>
+      <configuration>
+        <source>1.8</source>
+        <target>1.8</target>
+      </configuration>
+    </plugin>
 
-      <!-- Exec Maven Plugin (Optionnel) -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.1.0</version>
-        <configuration>
-          <mainClass>com.cipher.App</mainClass>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    <!-- JavaFX Maven Plugin -->
+    <plugin>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-maven-plugin</artifactId>
+      <version>0.0.8</version>
+      <configuration>
+        <mainClass>com.cipher.App</mainClass>
+      </configuration>
+      <executions>
+        <execution>
+          <goals>
+            <goal>run</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+
+    <!-- Exec Maven Plugin (Optionnel) -->
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>exec-maven-plugin</artifactId>
+      <version>3.1.0</version>
+      <configuration>
+        <mainClass>com.cipher.App</mainClass>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+
 
   <profiles>
     <profile>

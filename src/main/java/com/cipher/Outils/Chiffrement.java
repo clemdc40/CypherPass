@@ -1,8 +1,12 @@
 package com.cipher.Outils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -10,17 +14,12 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.nio.charset.StandardCharsets;
-import java.io.FileWriter;
-import java.io.BufferedReader;
-import java.io.FileReader;
 
+import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.Cipher;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class Chiffrement {
 
@@ -34,12 +33,9 @@ public class Chiffrement {
 
     private byte[] derivedKey;
 
-    /**
-     * Constructeur : on dérive la clé à partir du mot de passe maître.
-     */
     public Chiffrement(String masterPassword) {
         try {
-            ensureKeystoreDirectoryExists();  // ✅ Vérifier que le dossier existe
+            ensureKeystoreDirectoryExists();
             byte[] salt = loadOrGenerateSalt();
             byte[] keyFileData = loadOrGenerateKeyFile();
             byte[] compositeKey = generateCompositeKey(masterPassword, keyFileData);
@@ -51,7 +47,7 @@ public class Chiffrement {
     }
 
     /**
-     * ✅ Crée le dossier `keystore` s'il n'existe pas.
+     * Create the keystore directory if it doesn't exist.
      */
     private void ensureKeystoreDirectoryExists() throws IOException {
         File keystoreDir = new File("keystore");
@@ -65,7 +61,7 @@ public class Chiffrement {
     }
 
     /**
-     * ✅ Génère ou charge le salt.
+     * Generate or load the salt.
      */
     private byte[] loadOrGenerateSalt() throws IOException {
         File saltFile = new File(SALT_FILE);
@@ -83,7 +79,7 @@ public class Chiffrement {
     }
 
     /**
-     * ✅ Génère ou charge le fichier clé.
+     * Generate or load the key file.
      */
     private byte[] loadOrGenerateKeyFile() throws IOException {
         File keyFile = new File(DEFAULT_KEY_FILE);
@@ -101,7 +97,7 @@ public class Chiffrement {
     }
 
     /**
-     * ✅ Génère la Composite Key (Mot de passe maître + Fichier clé).
+     * Generate the composite key (master password + key file).
      */
     private byte[] generateCompositeKey(String password, byte[] keyFileData) throws Exception {
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
@@ -116,7 +112,7 @@ public class Chiffrement {
     }
 
     /**
-     * ✅ Dérive la clé AES avec PBKDF2.
+     * Derive the AES key using PBKDF2.
      */
     private byte[] deriveKey(byte[] compositeKey, byte[] salt) throws Exception {
         PBEKeySpec spec = new PBEKeySpec(
@@ -129,8 +125,9 @@ public class Chiffrement {
         logger.info("🔑 Clé AES dérivée avec succès.");
         return factory.generateSecret(spec).getEncoded();
     }
+
     /**
-     * Chiffre un texte.
+     * Encrypt a text.
      */
     public String chiffrer(String texte) {
         try {
@@ -154,7 +151,7 @@ public class Chiffrement {
     }
 
     /**
-     * Déchiffre un texte.
+     * Decrypt a text.
      */
     public String dechiffrer(String texteChiffre) {
         try {
@@ -177,7 +174,7 @@ public class Chiffrement {
     }
 
     /**
-     * Sauvegarde un mot de passe de manière chiffrée.
+     * Save a password in an encrypted manner.
      */
     public void savePassword(String password) {
         try {
@@ -195,7 +192,7 @@ public class Chiffrement {
     }
 
     /**
-     * Charge et déchiffre le mot de passe stocké.
+     * Load and decrypt the stored password.
      */
     public String loadSavedPassword() {
         File file = new File(PASSWORD_FILE);

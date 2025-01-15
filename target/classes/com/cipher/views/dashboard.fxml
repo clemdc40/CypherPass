@@ -9,7 +9,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.cipher.controllers.DashboardController"
-            prefWidth="1000.0" prefHeight="700.0"
+            prefWidth="1280" prefHeight="720"
             style="-fx-background-color: #f7f7f7; -fx-font-family: 'Segoe UI';">
 
     <!-- Top: Header -->
@@ -20,8 +20,9 @@
                 <Insets top="20.0" right="40.0" bottom="20.0" left="40.0"/>
             </padding>
             <Label text="🔒 SecurePass" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-            <Button text="Add New Password" onAction="#handleAddPassword"
-                    style="-fx-background-color: #000000; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;"/>
+            <Button fx:id="addPasswordButton" text="Ajouter un mot de passe" onAction="#handleAddPassword"
+        style="-fx-background-color: #000000; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;"/>
+
         </HBox>
     </top>
 

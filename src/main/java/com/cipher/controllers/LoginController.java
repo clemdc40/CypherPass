@@ -20,6 +20,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 public class LoginController {
@@ -30,21 +32,49 @@ public class LoginController {
     @FXML
     private Label errorLabel;
 
+    @FXML
+    private ImageView logoImageView;
+
+    @FXML
+    private javafx.scene.control.Button loginButton;
+
     private static final String MASTERPWD_FILE = "keystore/passwd.txt";
 
     @FXML
     private void initialize() {
         checkAndCreateMasterPassword();
+    
+        // Chargement du logo
+        Image logo = new Image(getClass().getResource("/com/cipher/images/logo.png").toExternalForm());
+        logoImageView.setImage(logo);
+    
+        // Effet de survol (hover)
+        loginButton.setOnMouseEntered(event -> 
+            loginButton.setStyle("-fx-background-color: #333333; -fx-text-fill: white;")
+        );
+    
+        loginButton.setOnMouseExited(event -> 
+            loginButton.setStyle("-fx-background-color: #000000; -fx-text-fill: white;")
+        );
+    
+        // Effet de clic (pressed)
+        loginButton.setOnMousePressed(event -> 
+            loginButton.setStyle("-fx-background-color: #555555; -fx-text-fill: white;")
+        );
+    
+        loginButton.setOnMouseReleased(event -> 
+            loginButton.setStyle("-fx-background-color: #333333; -fx-text-fill: white;")
+        );
     }
+    
 
     /**
-     * Vérifie si le mot de passe maître existe, sinon demande à l'utilisateur d'en créer un.
+     * Check if the master password exists, otherwise prompt the user to create one.
      */
     private void checkAndCreateMasterPassword() {
         try {
             File file = new File(MASTERPWD_FILE);
 
-            // Si le fichier n'existe pas ou est vide
             if (!file.exists() || file.length() == 0) {
                 System.out.println("🔒 Aucun mot de passe maître trouvé. Veuillez en créer un.");
                 errorLabel.setText("🔒 Aucun mot de passe maître. Veuillez en créer un.");
@@ -65,7 +95,7 @@ public class LoginController {
     }
 
     /**
-     * Sauvegarde le mot de passe maître haché.
+     * Save the hashed master password.
      */
     private void saveMasterPasswordHash(String masterPassword) {
         try {
@@ -84,28 +114,24 @@ public class LoginController {
     }
 
     /**
-     * Vérifie si le mot de passe entré correspond au mot de passe maître.
+     * Verify if the entered password matches the master password.
      */
     private boolean verifyMasterPasswordHash(String inputPassword) {
         File passwordFile = new File("keystore/passwd.txt");
 
         try {
-            // Si le fichier n'existe pas ou est vide, demander de créer un mot de passe
             if (!passwordFile.exists() || passwordFile.length() == 0) {
                 System.out.println("🔑 Aucun mot de passe maître trouvé. Veuillez en créer un.");
-                saveMasterPassword(inputPassword);  // Sauvegarde du mot de passe
+                saveMasterPassword(inputPassword);
                 return true;
             }
 
-            // Lire le mot de passe chiffré stocké
             BufferedReader reader = new BufferedReader(new FileReader(passwordFile));
             String savedPasswordHash = reader.readLine();
             reader.close();
 
-            // Hash du mot de passe entré
             String inputPasswordHash = hashPassword(inputPassword);
 
-            // Comparaison des hash
             return inputPasswordHash.equals(savedPasswordHash);
 
         } catch (IOException e) {
@@ -114,7 +140,7 @@ public class LoginController {
     }
 
     /**
-     * Sauvegarde le mot de passe maître sous forme de hash.
+     * Save the master password as a hash.
      */
     private void saveMasterPassword(String password) {
         try {
@@ -129,7 +155,7 @@ public class LoginController {
     }
 
     /**
-     * Hash le mot de passe avec SHA-256.
+     * Hash the password using SHA-256.
      */
     private String hashPassword(String password) {
         try {
@@ -141,29 +167,29 @@ public class LoginController {
         }
     }
 
-
     @FXML
     private void handleLoginButtonAction() {
         String masterPassword = passwordField.getText();
     
         if (verifyMasterPasswordHash(masterPassword)) {
             System.out.println("✅ Authentification réussie !");
-            
-            // ✅ Appel de la méthode avec chiffrement
+            errorLabel.setText("✅ Authentification réussie !");
             loadDashboard(masterPassword);
         } else {
             errorLabel.setText("❌ Mot de passe incorrect !");
         }
     }
     
+    /**
+     * Load the dashboard after successful authentication.
+     */
     private void loadDashboard(String masterPassword) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cipher/views/dashboard.fxml"));
             Parent dashboardRoot = loader.load();
     
-            // ✅ Passer l'instance de chiffrement
             DashboardController dashboardController = loader.getController();
-            dashboardController.setChiffrement(new Chiffrement(masterPassword));  // ⚠️ Important !
+            dashboardController.setChiffrement(new Chiffrement(masterPassword));
     
             Stage stage = (Stage) passwordField.getScene().getWindow();
             stage.setScene(new Scene(dashboardRoot));
@@ -175,6 +201,4 @@ public class LoginController {
             errorLabel.setText("❌ Impossible de charger le Dashboard.");
         }
     }
-    
-
 }
