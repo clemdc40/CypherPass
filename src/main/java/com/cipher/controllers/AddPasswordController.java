@@ -41,20 +41,55 @@ public class AddPasswordController {
     private Label passwordLengthLabel;
 
     private Chiffrement chiffrement;
-    private DatabaseManager databaseManager;  // ✅ Déclaration ajoutée
+    private DatabaseManager databaseManager;
+
+    @FXML
+    private javafx.scene.control.Button generateButton;
+
+    @FXML
+    private javafx.scene.control.Button addPasswordButton;
+
 
     @FXML
     private void initialize() {
-        // Désélectionner les cases à cocher par défaut
         includeUppercase.setSelected(false);
         includeNumbers.setSelected(false);
         includeSymbols.setSelected(false);
-
-        // Mettre à jour l'étiquette de longueur de mot de passe lorsque le curseur change
+    
+        // Met à jour la valeur du label selon le slider
         passwordLengthSlider.valueProperty().addListener((obs, oldVal, newVal) -> 
             passwordLengthLabel.setText(String.valueOf(newVal.intValue()))
         );
+    
+        // Effets pour le bouton "Générer"
+        generateButton.setOnMouseEntered(event ->
+            generateButton.setStyle("-fx-background-color: #333333; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+        generateButton.setOnMouseExited(event ->
+            generateButton.setStyle("-fx-background-color: #000000; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+        generateButton.setOnMousePressed(event ->
+            generateButton.setStyle("-fx-background-color: #555555; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+        generateButton.setOnMouseReleased(event ->
+            generateButton.setStyle("-fx-background-color: #333333; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+    
+        // Effets pour le bouton "Add Password"
+        addPasswordButton.setOnMouseEntered(event ->
+            addPasswordButton.setStyle("-fx-background-color: #333333; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+        addPasswordButton.setOnMouseExited(event ->
+            addPasswordButton.setStyle("-fx-background-color: #000000; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+        addPasswordButton.setOnMousePressed(event ->
+            addPasswordButton.setStyle("-fx-background-color: #555555; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+        addPasswordButton.setOnMouseReleased(event ->
+            addPasswordButton.setStyle("-fx-background-color: #333333; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
     }
+    
 
     @FXML
     private void handleAddPassword() {
@@ -67,15 +102,15 @@ public class AddPasswordController {
             return;
         }
 
-        // 🔒 Chiffrement avec l'instance de chiffrement
+        // Encrypt the password
         String encryptedPassword = chiffrement.chiffrer(password);
 
-        // 📝 Sauvegarde dans la base de données
+        // Save the encrypted password to the database
         databaseManager.addPassword(site, username, encryptedPassword);
 
         System.out.println("✅ Mot de passe ajouté à la base de données !");
 
-        // 🔙 Retour au Dashboard
+        // Return to the dashboard
         goToDashboard();
     }
 
@@ -84,9 +119,9 @@ public class AddPasswordController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/cipher/views/dashboard.fxml"));
             Parent dashboardRoot = loader.load();
     
-            // ✅ Passer l'instance de chiffrement au Dashboard
+            // Pass the Chiffrement instance to the Dashboard
             DashboardController dashboardController = loader.getController();
-            dashboardController.setChiffrement(chiffrement);  // ⚠️ Important !
+            dashboardController.setChiffrement(chiffrement);
     
             passwordField.getScene().setRoot(dashboardRoot);
     
@@ -96,10 +131,6 @@ public class AddPasswordController {
             e.printStackTrace();
         }
     }
-        
-
-    
-    
 
     @FXML
     private void handleGeneratePassword() {
@@ -108,6 +139,7 @@ public class AddPasswordController {
         boolean useSymbols = includeSymbols.isSelected();
         int passwordLength = (int) passwordLengthSlider.getValue();
 
+        // Generate a random password based on the selected options
         String generatedPassword = PasswordGenerator.generatePassword(passwordLength, useUppercase, useNumbers, useSymbols);
         passwordField.setText(generatedPassword);
     }
@@ -116,6 +148,4 @@ public class AddPasswordController {
         this.chiffrement = chiffrement;
         this.databaseManager = new DatabaseManager(chiffrement);
     }
-
-    
 }

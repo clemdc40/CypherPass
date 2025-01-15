@@ -10,12 +10,13 @@ public class DatabaseManager {
     private static final String DB_URL = "jdbc:sqlite:keystore/database.db";
     private final Chiffrement chiffrement;
 
+    // Constructor to initialize the DatabaseManager with a Chiffrement instance
     public DatabaseManager(Chiffrement chiffrement) {
         this.chiffrement = chiffrement;
         createTable();
     }
-    
 
+    // Method to create the passwords table if it does not exist
     private void createTable() {
         String sql = "CREATE TABLE IF NOT EXISTS passwords ("
                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -31,6 +32,7 @@ public class DatabaseManager {
         }
     }
 
+    // Method to add a new password entry to the database
     public void addPassword(String site, String username, String encryptedPassword) {
         String sql = "INSERT INTO passwords (site, username, password) VALUES (?, ?, ?)";
     
@@ -46,8 +48,8 @@ public class DatabaseManager {
             throw new RuntimeException("Erreur lors de l'ajout du mot de passe : " + e.getMessage());
         }
     }
-    
 
+    // Method to retrieve and print all passwords from the database
     public void retrievePasswords() {
         String sql = "SELECT site, username, password FROM passwords";
 
@@ -67,6 +69,7 @@ public class DatabaseManager {
         }
     }
 
+    // Method to get a ResultSet of all sites and usernames from the database
     public ResultSet getSiteAndUsername() {
         String sql = "SELECT site, username FROM passwords";
         try {
@@ -78,6 +81,7 @@ public class DatabaseManager {
         }
     }
 
+    // Method to delete a password entry by site
     public void deleteSite(String site) {
         String sql = "DELETE FROM passwords WHERE site = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -89,6 +93,7 @@ public class DatabaseManager {
         }
     }
 
+    // Method to get a decrypted password by site
     public String getDecryptedPasswordBySite(String site) {
         String sql = "SELECT password FROM passwords WHERE site = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -105,10 +110,12 @@ public class DatabaseManager {
         return null;
     }
 
+    // Getter for the Chiffrement instance
     public Chiffrement getChiffrement() {
         return chiffrement;
     }
 
+    // Method to get a ResultSet of passwords by site
     public ResultSet getPasswordBySite(String site) {
         String sql = "SELECT password FROM passwords WHERE site = ?";
         try {
@@ -120,6 +127,5 @@ public class DatabaseManager {
             throw new RuntimeException("Erreur lors de la récupération du mot de passe : " + e.getMessage());
         }
     }
-    
 
 }

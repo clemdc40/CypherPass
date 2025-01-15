@@ -1,5 +1,9 @@
 package com.cipher.controllers;
 
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import com.cipher.Outils.Chiffrement;
 import com.cipher.Outils.DatabaseManager;
 
@@ -18,10 +22,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 public class DashboardController {
 
     @FXML
@@ -29,7 +29,9 @@ public class DashboardController {
 
     private DatabaseManager databaseManager;
     private Chiffrement chiffrement;
-
+    @FXML
+    private Button addPasswordButton;
+    
     /**
      * Injection de l'instance de chiffrement.
      */
@@ -48,7 +50,25 @@ public class DashboardController {
         } else {
             System.err.println("❌ L'instance de Chiffrement n'a pas été initialisée.");
         }
+    
+        // Effet de survol pour le bouton "Ajouter un mot de passe"
+        addPasswordButton.setOnMouseEntered(event ->
+            addPasswordButton.setStyle("-fx-background-color: #333333; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;")
+        );
+    
+        addPasswordButton.setOnMouseExited(event ->
+            addPasswordButton.setStyle("-fx-background-color: #000000; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;")
+        );
+    
+        addPasswordButton.setOnMousePressed(event ->
+            addPasswordButton.setStyle("-fx-background-color: #555555; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;")
+        );
+    
+        addPasswordButton.setOnMouseReleased(event ->
+            addPasswordButton.setStyle("-fx-background-color: #333333; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;")
+        );
     }
+    
 
 
     /**
@@ -113,6 +133,40 @@ public class DashboardController {
         passwordContainer.getChildren().add(card);
     
         System.out.println("📄 Carte ajoutée pour le site : " + site);
+        // Effet hover pour le bouton Copier
+        copyButton.setOnMouseEntered(event ->
+        copyButton.setStyle("-fx-background-color: #333333; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+
+        copyButton.setOnMouseExited(event ->
+        copyButton.setStyle("-fx-background-color: #000000; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+
+        copyButton.setOnMousePressed(event ->
+        copyButton.setStyle("-fx-background-color: #555555; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+
+        copyButton.setOnMouseReleased(event ->
+        copyButton.setStyle("-fx-background-color: #333333; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+
+        // Effet hover pour le bouton Supprimer
+        deleteButton.setOnMouseEntered(event ->
+        deleteButton.setStyle("-fx-background-color: #ff6666; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+
+        deleteButton.setOnMouseExited(event ->
+        deleteButton.setStyle("-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+
+        deleteButton.setOnMousePressed(event ->
+        deleteButton.setStyle("-fx-background-color: #ff8080; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+
+        deleteButton.setOnMouseReleased(event ->
+        deleteButton.setStyle("-fx-background-color: #ff6666; -fx-text-fill: white; -fx-background-radius: 10;")
+        );
+
     }
     
 
