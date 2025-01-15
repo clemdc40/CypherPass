@@ -110,6 +110,20 @@ public class DatabaseManager {
         return null;
     }
 
+    // Method to update a password entry by site
+    public void updatePassword(String site, String username, String encryptedPassword) {
+        String sql = "UPDATE passwords SET username = ?, password = ? WHERE site = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            stmt.setString(2, encryptedPassword);
+            stmt.setString(3, site);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la mise à jour du mot de passe : " + e.getMessage());
+        }
+    }
+
     // Getter for the Chiffrement instance
     public Chiffrement getChiffrement() {
         return chiffrement;
